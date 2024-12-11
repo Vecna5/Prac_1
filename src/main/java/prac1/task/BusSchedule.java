@@ -4,12 +4,15 @@ import jakarta.persistence.*;
 import java.time.LocalDate;
 
 @Entity
-@Table(name = "bus_schedules")
+@Table(name = "bus_schedule")
 public class BusSchedule {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Version
+    private Long version;
 
     @Column(nullable = false)
     private String destinationCity;
@@ -38,6 +41,14 @@ public class BusSchedule {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public Long getVersion() {
+        return version;
+    }
+
+    public void setVersion(Long version) {
+        this.version = version;
     }
 
     public String getDestinationCity() {

@@ -2,12 +2,18 @@ package prac1.task;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+
 
 import java.util.List;
-
+@Entity
 @RestController
 @RequestMapping("/api/schedules")
 public class BusScheduleController {
+
+    @Id
+    private Long id;
 
     private final BusScheduleService service;
 
