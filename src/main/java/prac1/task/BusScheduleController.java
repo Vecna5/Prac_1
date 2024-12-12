@@ -1,19 +1,17 @@
 package prac1.task;
 
+import javax.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.validation.FieldError;
+import org.springframework.http.HttpStatus;
 
 import java.util.List;
-@Entity
+
 @RestController
 @RequestMapping("/api/schedules")
 public class BusScheduleController {
-
-    @Id
-    private Long id;
 
     private final BusScheduleService service;
 
@@ -27,20 +25,33 @@ public class BusScheduleController {
     }
 
     @PostMapping
-    public ResponseEntity<BusSchedule> createSchedule(@RequestBody BusSchedule schedule) {
-        BusSchedule savedSchedule = service.saveSchedule(schedule);
-        return ResponseEntity.ok(savedSchedule);
+    public ResponseEntity<BusSchedule> createSchedule(@Valid @RequestBody BusScheduleDTO scheduleDTO) {
+        return ResponseEntity.ok(service.saveSchedule(scheduleDTO));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<BusSchedule> updateSchedule(@PathVariable Long id, @RequestBody BusSchedule schedule) {
-        BusSchedule updatedSchedule = service.updateSchedule(id, schedule);
-        return ResponseEntity.ok(updatedSchedule);
+    public ResponseEntity<BusSchedule> updateSchedule(@PathVariable Long id, @Valid @RequestBody BusScheduleDTO scheduleDTO) {
+        return ResponseEntity.ok(service.updateSchedule(id, scheduleDTO));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteSchedule(@PathVariable Long id) {
         service.deleteSchedule(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/grouped")
+    public ResponseEntity<List<?>> getGroupedSchedules() {
+        List<?> groupedSchedules = service.getSchedulesGroupedByWeekday();
+        return ResponseEntity.ok(groupedSchedules);
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<String> handleValidationExceptions(MethodArgumentNotValidException ex) {
+        StringBuilder errorMessage = new StringBuilder("Validation failed: ");
+        ex.getBindingResult().getAllErrors().forEach(error -> 
+            errorMessage.append(error.getDefaultMessage()).append(". ")
+        );
+        return ResponseEntity.badRequest().body(errorMessage.toString());
     }
 }
