@@ -1,9 +1,6 @@
 package prac1.task;
 
 import org.springframework.stereotype.Service;
-import prac1.task.BusSchedule;
-import prac1.task.BusScheduleRepository;
-import prac1.task.BusScheduleDTO;
 
 import java.time.DayOfWeek;
 import java.util.List;
@@ -18,21 +15,26 @@ public class BusScheduleService {
         this.repository = repository;
     }
 
-    public List<BusSchedule> getAllSchedules() {
-        return repository.findAll();
+    public List<BusScheduleDTO> getAllSchedules() {
+        return repository.findAll().stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
     }
 
-    public BusSchedule saveSchedule(BusScheduleDTO scheduleDTO) {
+    public BusScheduleDTO saveSchedule(BusScheduleDTO scheduleDTO) {
         BusSchedule schedule = convertToEntity(scheduleDTO);
-        return repository.save(schedule);
+        BusSchedule savedSchedule = repository.save(schedule);
+        return convertToDTO(savedSchedule);
     }
 
-    public BusSchedule updateSchedule(Long id, BusScheduleDTO scheduleDTO) {
+    public BusScheduleDTO updateSchedule(Long id, BusScheduleDTO scheduleDTO) {
         BusSchedule existingSchedule = repository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Schedule not found with id: " + id));
+
         BusSchedule updatedSchedule = convertToEntity(scheduleDTO);
         updatedSchedule.setId(existingSchedule.getId());
-        return repository.save(updatedSchedule);
+        BusSchedule savedSchedule = repository.save(updatedSchedule);
+        return convertToDTO(savedSchedule);
     }
 
     public void deleteSchedule(Long id) {
@@ -49,6 +51,18 @@ public class BusScheduleService {
                 .stream()
                 .filter(entry -> entry.getKey() != DayOfWeek.SATURDAY && entry.getKey() != DayOfWeek.SUNDAY)
                 .collect(Collectors.toList());
+    }
+
+    private BusScheduleDTO convertToDTO(BusSchedule schedule) {
+        BusScheduleDTO dto = new BusScheduleDTO();
+        dto.setDestinationCity(schedule.getDestinationCity());
+        dto.setBusNumber(schedule.getBusNumber());
+        dto.setDepartureDate(schedule.getDepartureDate());
+        dto.setCarrier(schedule.getCarrier());
+        dto.setLicensePlate(schedule.getLicensePlate());
+        dto.setTravelDurationMinutes(schedule.getTravelDurationMinutes());
+        dto.setPlatformNumber(schedule.getPlatformNumber());
+        return dto;
     }
 
     private BusSchedule convertToEntity(BusScheduleDTO dto) {
