@@ -1,6 +1,7 @@
 package prac1.task;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
@@ -14,6 +15,14 @@ public class BusScheduleController {
         this.service = service;
     }
 
+@Controller
+public class LoginController {
+
+    @GetMapping("/login")
+    public String login() {
+        return "login"; 
+    }
+}
     @GetMapping
     public List<BusScheduleDTO> getAllBusSchedules() {
         return service.getAllSchedules();

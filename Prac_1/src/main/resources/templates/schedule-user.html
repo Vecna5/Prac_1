@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Розклад автобусів</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+        th {
+            background-color: #f4f4f4;
+        }
+    </style>
+</head>
+<body>
+    <h1>Розклад автобусів (Понеділок-Пʼятниця)</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>День тижня</th>
+                <th>Час відправлення</th>
+                <th>Назва автобуса</th>
+                <th>Пункт призначення</th>
+            </tr>
+        </thead>
+        <tbody id="scheduleTableBody">
+        </tbody>
+    </table>
+
+    <script>
+        async function loadSchedule() {
+            try {
+                const response = await fetch('http://localhost:8080/api/schedules', {
+                    headers: {
+                        'Authorization': 'Basic ' + btoa('admin:123') 
+                    }
+                });
+                if (!response.ok) {
+                    throw new Error('Не вдалося завантажити розклад');
+                }
+
+                const schedules = await response.json();
+                const tableBody = document.getElementById('scheduleTableBody');
+                tableBody.innerHTML = '';
+
+                schedules.forEach(schedule => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${new Date(schedule.departureDate).toLocaleDateString('uk-UA', { weekday: 'long' })}</td>
+                        <td>${new Date(schedule.departureDate).toLocaleTimeString('uk-UA')}</td>
+                        <td>${schedule.busName}</td>
+                        <td>${schedule.destination}</td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+            } catch (error) {
+                console.error(error);
+                alert('Помилка завантаження розкладу');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', loadSchedule);
+    </script>
+</body>
+</html>

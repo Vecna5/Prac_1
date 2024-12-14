@@ -15,6 +15,13 @@ public class BusScheduleService {
         this.repository = repository;
     }
 
+    public List<BusScheduleDTO> getSchedulesForWeekdays() {
+        List<BusSchedule> schedules = repository.findSchedulesForWeekdays();
+        return schedules.stream()
+            .map(this::convertToDTO) 
+            .collect(Collectors.toList());
+    }
+    
     public List<BusScheduleDTO> getAllSchedules() {
         return repository.findAll().stream()
                 .map(this::convertToDTO)
