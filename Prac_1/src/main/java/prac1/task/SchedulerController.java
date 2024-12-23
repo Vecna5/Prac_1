@@ -5,6 +5,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.ui.Model;
 
 import java.util.Base64;
 import java.util.List;
@@ -24,6 +25,24 @@ public class SchedulerController {
         this.userService = userService;  
     }
 
+    @GetMapping("/schedule")
+public ResponseEntity<List<BusScheduleDTO>> getScheduleForWeekdays() {
+    List<BusScheduleDTO> schedules = schedulerService.getSchedulesForWeekdays();
+    return ResponseEntity.ok(schedules);
+}
+@GetMapping("/user-schedule")
+public String getUserSchedule(Model model) {
+    List<BusScheduleDTO> schedules = schedulerService.getSchedulesForWeekdays();
+    model.addAttribute("schedules", schedules);
+    return "schedule-user"; 
+}
+
+@GetMapping("/admin-schedule")
+public String getAdminSchedule(Model model) {
+    List<BusScheduleDTO> schedules = schedulerService.getAllSchedules();
+    model.addAttribute("schedules", schedules);
+    return "schedule-admin"; 
+}
     @GetMapping
     public ResponseEntity<List<BusScheduleDTO>> getAllSchedules(@RequestHeader("Authorization") String token) {
         if (validateToken(token)) {
